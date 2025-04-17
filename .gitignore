@@ -1,0 +1,8 @@
+nimcache/
+config.nims
+bin/*
+src/utils
+src/client
+src/server
+tests/tclient
+tests/tserver
