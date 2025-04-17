@@ -9,14 +9,15 @@ Hyps is an async pub/sub client and server.
 
 This pub/sub offers:
 
-- Concurrent subscriptions, publishing, and receiving messages over one single connection through multiplexing.
-- Creating one or more subscriptions to any and many channels using one connection. Which allows a client instance to handle many subscriptions using one connection.
-- Automatic batching/pipelining for all operations.
-- At most once delivery. A message may not be received if messages are produced much faster than they are consumed; there is a buffer that will eventually fill up and start dropping messages.
-- Subscriptions and published messages are ACKed. This means there is no fire and forget without knowing if an operation succeeded or not.
-- Received messages are ordered in the published order.
-- No persistence. Messages are only delivered to subscribers who are actively connected at the time the message is published.
-- No message delivery retrying. Messages are realtime only.
+- Concurrent subscriptions, publishing, and message delivery over a single connection through multiplexing.
+- Support for multiple subscribers using a single client instance (socket).
+- Support for dynamic subscriptions.
+- Automatic batching and pipelining for all operations.
+- At-most-once delivery: messages may be lost if they are produced significantly faster than they are consumed, as the buffer will eventually fill up and start dropping messages.
+- ACKs for both subscriptions and published messages.
+- Messages are received in the order they were published.
+- No persistence: messages are delivered only to subscribers who are actively connected at the time of publication.
+- No message delivery retries: messages are real-time only.
 
 If you care about receving all messages, you may store them in a persistent storage on your own before publish, detect when there is a gap in the received messages, and fetch them from storage. Alternatively use a *log/stream* (kafka, redis streams, etc) instead of a pub/sub, which makes other trade-offs.
 
@@ -76,6 +77,8 @@ For servers using this library:
 - Create one subscription per user connecting (usually through SSE or WS) to the server.
 - Use the subscription for subscribing to channels and receiving messages.
 - Use the pub/sub client instance to send messages.
+
+This way you can have a massive amount of subscribers (users) all sharing the same client instance (socket) per server. A fleet of servers all connected to one single hyps instance. This scales decently well out of the box, without the need of extra proxies in order to support more users.
 
 ## Prolog, httpx, etc
 
