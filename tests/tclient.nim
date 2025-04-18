@@ -1,5 +1,5 @@
 import std/[asyncdispatch]
-import ../src/client
+import ../src/hyps/client
 import ./utils
 
 template testAsync(name: string, body: untyped): untyped =

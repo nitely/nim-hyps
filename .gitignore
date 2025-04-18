@@ -1,8 +1,8 @@
 nimcache/
 config.nims
 bin/*
-src/utils
-src/client
-src/server
+src/hyps/utils
+src/hyps/client
+src/hyps/server
 tests/tclient
 tests/tserver

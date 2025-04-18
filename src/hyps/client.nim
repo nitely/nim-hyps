@@ -12,6 +12,9 @@ type Subscriber* = ref object
 proc newSubscriber*: Subscriber =
   Subscriber(signal: newSignal(), messages: "")
 
+proc close*(sub: Subscriber) {.raises: [].} =
+  sub.signal.close()
+
 type Buff = ref object
   data: ref string
   signal, ackSignal: SignalAsync

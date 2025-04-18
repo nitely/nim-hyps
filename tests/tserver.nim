@@ -1,5 +1,5 @@
 import std/[asyncdispatch]
-import ../src/server
+import ../src/hyps/server
 import ./utils
 
 proc main() {.async.} =
