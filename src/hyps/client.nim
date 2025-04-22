@@ -1,19 +1,14 @@
 import std/[asyncdispatch, tables]
 import pkg/hyperx/[client, signal]
 from pkg/hyperx/clientserver import close
-import ./[utils, errors]
+import ./[clientserver, utils, errors]
 
-export records, fullRecords
-
-type Subscriber* = ref object
-  signal: SignalAsync
-  messages*: string
-
-proc newSubscriber*: Subscriber =
-  Subscriber(signal: newSignal(), messages: "")
-
-proc close*(sub: Subscriber) {.raises: [].} =
-  sub.signal.close()
+export
+  records,
+  fullRecords,
+  Subscriber,
+  newSubscriber,
+  hash
 
 type Buff = ref object
   data: ref string
@@ -43,7 +38,7 @@ proc close(buff: Buff) =
 
 type Pubsub* = ref object
   client: ClientContext
-  channels: Table[string, seq[Subscriber]]
+  channels: Channels
   subscriberFut, publisherFut, dispFut: Future[void]
   pubBuff, subBuff: Buff
   error: ref HypsError
@@ -51,7 +46,7 @@ type Pubsub* = ref object
 proc newPubsub*(host: string, port: Port, ssl: static[bool] = false): Pubsub =
   Pubsub(
     client: newClient(host, port, ssl),
-    channels: initTable[string, seq[Subscriber]](),
+    channels: newChannels(),
     pubBuff: initBuff(),
     subBuff: initBuff(),
     publisherFut: nil,
@@ -59,9 +54,7 @@ proc newPubsub*(host: string, port: Port, ssl: static[bool] = false): Pubsub =
   )
 
 proc close(pb: Pubsub) =
-  for subs in values pb.channels:
-    for sub in subs:
-      sub.signal.close()
+  pb.channels.close()
   pb.pubBuff.close()
   pb.subBuff.close()
   pb.client.close()
@@ -146,10 +139,7 @@ proc subscribe*(pb: PubSub, sub: Subscriber, chs: seq[string]) {.async.} =
   ## Subscribe to one or more channels.
   ## Raises `HypsError` if the pubsub is closed.
   for ch in chs:
-    if ch in pb.channels:
-      pb.channels[ch].add sub
-    else:
-      pb.channels[ch] = @[sub]
+    pb.channels.subTo(sub, ch)
     pb.subbuff.add ch
   try:
     pb.subBuff.signal.trigger()
@@ -157,7 +147,7 @@ proc subscribe*(pb: PubSub, sub: Subscriber, chs: seq[string]) {.async.} =
     while pb.subBuff.ack < count:
       await pb.subBuff.ackSignal.waitFor()
   except SignalClosedError:
-    sub.signal.close()
+    pb.channels.close sub
     if pb.error != nil:
       raise newHypsError(pb.error.msg)
     raise
