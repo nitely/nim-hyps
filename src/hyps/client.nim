@@ -53,6 +53,9 @@ proc newPubsub*(host: string, port: Port, ssl: static[bool] = false): Pubsub =
     dispFut: nil
   )
 
+proc close*(pb: Pubsub, sub: Subscriber) =
+  pb.channels.close sub
+
 proc close(pb: Pubsub) =
   pb.channels.close()
   pb.pubBuff.close()
