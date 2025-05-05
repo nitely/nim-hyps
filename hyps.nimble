@@ -8,4 +8,13 @@ srcDir = "src"
 skipDirs = @["tests", "examples"]
 
 requires "nim >= 2.0.14"
-requires "hyperx >= 0.1.50"
+requires "hyperx >= 0.1.53"
+
+task test, "Test":
+  exec "nim c -r src/hyps/utils.nim"
+
+task tserve, "Test serve":
+  exec "nim c -r tests/tserver.nim"
+
+task tclient, "Test client":
+  exec "nim c -r tests/tclient.nim"
