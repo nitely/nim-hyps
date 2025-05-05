@@ -7,7 +7,7 @@ license = "MIT"
 srcDir = "src"
 skipDirs = @["tests", "examples"]
 
-requires "nim >= 2.0.14"
+requires "nim >= 2.2.0"
 requires "hyperx >= 0.1.53"
 
 task test, "Test":
