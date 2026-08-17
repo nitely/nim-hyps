@@ -21,9 +21,9 @@ This pub/sub offers:
 
 If you care about receving all messages, you may store them in a persistent storage on your own before publish, detect when there is a gap in the received messages, and fetch them from storage. Alternatively use a *log/stream* (kafka, redis streams, etc) instead of a pub/sub, which makes other trade-offs.
 
-## Refc only
+## ORC
 
-For now this only supports refc and so it requires compiling with `--mm:refc`. The `--mm:orc` cycle collector is not supported for now. Pls, do not open issues related to orc.
+Hyps works better in Nim +2.2.12 (or devel) under ORC. Older Nim versions leak memory.
 
 ## Message format
 
